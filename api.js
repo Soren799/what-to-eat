@@ -3,7 +3,6 @@
 // 第二阶段换成真实 GitHub Gist API 时只改这里
 // ============================================
 
-const ADMIN_USER = 'Soren799';
 
 const DB = {
   _get(key, def) {
@@ -34,11 +33,12 @@ async function apiRegister(username, password) {
   await delay();
   const users = DB.getUsers();
   if (users[username]) return { ok: false, error: '用户名已存在' };
-  if (username === ADMIN_USER && users[ADMIN_USER]) return { ok: false, error: '管理员已存在' };
+  const isFirst = Object.keys(users).length === 0;
   const hash = btoa(password); // 模拟哈希，真实用 bcrypt
   const user = {
     username, passwordHash: hash,
-    aiAccess: username === ADMIN_USER,
+    aiAccess: isFirst,
+    isAdmin: isFirst,
     createdAt: new Date().toISOString(),
     preferences: { dislikes: [], customReqs: [] },
   };
@@ -47,7 +47,7 @@ async function apiRegister(username, password) {
   const reg = DB.getRegistry();
   reg[username] = { aiAccess: user.aiAccess };
   DB.setRegistry(reg);
-  return { ok: true, user: { username, aiAccess: user.aiAccess } };
+  return { ok: true, user: { username, aiAccess: user.aiAccess, isAdmin: isFirst } };
 }
 
 async function apiLogin(username, password) {
@@ -57,7 +57,7 @@ async function apiLogin(username, password) {
   if (user.passwordHash !== btoa(password)) return { ok: false, error: '密码错误' };
   return {
     ok: true,
-    user: { username, aiAccess: user.aiAccess, isAdmin: username === ADMIN_USER },
+    user: { username, aiAccess: user.aiAccess, isAdmin: user.isAdmin ?? false },
   };
 }
 
