@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>今天吃什么？🍽️</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🍽️ 今天吃什么？</h1>
+      <p class="subtitle">根据心情和状态，推荐最适合你的那一餐</p>
+    </header>
+
+    <main>
+      <!-- 选择器区域 -->
+      <div class="selectors">
+        <!-- 心情 -->
+        <div class="selector-card" data-type="mood">
+          <label>😊 你现在的心情</label>
+          <div class="options" id="mood-options">
+            <button class="opt-btn" data-value="happy">😊 开心</button>
+            <button class="opt-btn" data-value="tired">😴 疲惫</button>
+            <button class="opt-btn" data-value="anxious">😰 焦虑</button>
+            <button class="opt-btn" data-value="calm">🧘 平静</button>
+          </div>
+        </div>
+
+        <!-- 状态 -->
+        <div class="selector-card" data-type="state">
+          <label>⏰ 你现在的状态</label>
+          <div class="options" id="state-options">
+            <button class="opt-btn" data-value="busy">⏰ 赶时间</button>
+            <button class="opt-btn" data-value="leisure">🌿 悠闲</button>
+            <button class="opt-btn" data-value="no-appetite">😑 没胃口</button>
+            <button class="opt-btn" data-value="starving">🤤 饿极了</button>
+          </div>
+        </div>
+
+        <!-- 餐别 -->
+        <div class="selector-card" data-type="meal">
+          <label>🍳 哪一餐？</label>
+          <div class="options" id="meal-options">
+            <button class="opt-btn" data-value="breakfast">🌅 早餐</button>
+            <button class="opt-btn" data-value="lunch">☀️ 午餐</button>
+            <button class="opt-btn" data-value="dinner">🌙 晚餐</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 推荐按钮 -->
+      <button id="recommend-btn" disabled>
+        <span id="btn-text">👆 请选择心情、状态和餐别</span>
+        <span id="btn-spinner" class="hidden">✨ 正在为你推荐...</span>
+      </button>
+
+      <!-- 结果区域 -->
+      <div id="result" class="hidden">
+        <div class="result-card">
+          <div class="result-emoji" id="result-emoji">🍽️</div>
+          <h2 id="result-title">推荐菜品</h2>
+          <p id="result-desc">描述文字</p>
+          <div class="result-tags" id="result-tags"></div>
+        </div>
+        <button id="reshuffle-btn" class="secondary-btn">🔄 换一个推荐</button>
+      </div>
+
+      <!-- 随机模式 -->
+      <div class="random-section">
+        <p class="random-hint">🤔 选择困难？</p>
+        <button id="random-btn" class="ghost-btn">🎲 完全随机推荐</button>
+      </div>
+    </main>
+
+    <footer>
+      <p>✨ 吃好每一餐，生活不简单</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
