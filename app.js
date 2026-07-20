@@ -407,17 +407,19 @@ async function openAdmin() {
   for (const [username, info] of Object.entries(res.registry)) {
     const userData = DB.getUser(username);
     const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
     tr.innerHTML = `
       <td>${username}</td>
       <td>${userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : '-'}</td>
       <td>
-        <label class="toggle">
+        <label class="toggle" onclick="event.stopPropagation()">
           <input type="checkbox" ${info.aiAccess ? 'checked' : ''} data-user="${username}">
           <span class="toggle-slider"></span>
         </label>
         <span class="toggle-label">${info.aiAccess ? '✅ 已开通' : '❌ 未开通'}</span>
       </td>
     `;
+    tr.addEventListener('click', () => openUserDetail(username));
     const cb = tr.querySelector('input');
     cb.addEventListener('change', async () => {
       const r = await apiToggleAiAccess(username);
@@ -428,6 +430,118 @@ async function openAdmin() {
     adminUserList.appendChild(tr);
   }
   adminModal.classList.remove('hidden');
+}
+
+// ======== 用户详情弹窗 ========
+async function openUserDetail(username) {
+  const res = await apiGetUserDetail(username);
+  if (!res.ok) { alert(res.error); return; }
+  const u = res.user;
+
+  // 创建详情弹窗
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal modal-lg">
+      <button class="modal-close">&times;</button>
+      <h2>👤 ${u.username}</h2>
+      <p class="modal-sub">注册于 ${new Date(u.createdAt).toLocaleString()}</p>
+
+      <h3 style="margin-top:16px">🤖 AI 权限</h3>
+      <label class="toggle" style="margin:8px 0">
+        <input type="checkbox" id="detailAiAccess" ${u.aiAccess ? 'checked' : ''}>
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="detailAiLabel">${u.aiAccess ? '✅ 已开通' : '❌ 未开通'}</span>
+
+      <h3 style="margin-top:16px">📋 不吃的类别</h3>
+      <div class="survey-categories" id="detailCategories"></div>
+
+      <h3 style="margin-top:16px">✏️ 自定义要求</h3>
+      <div class="survey-custom-list" id="detailCustomReqs"></div>
+      <div class="survey-custom-add" style="margin-top:8px">
+        <input type="text" id="detailCustomInput" placeholder="添加要求..." maxlength="50">
+        <button class="btn-secondary" id="detailCustomAddBtn">添加</button>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:20px">
+        <button class="btn-primary" id="detailSaveBtn" style="flex:1">💾 保存修改</button>
+        <button class="btn-secondary" id="detailCloseBtn">关闭</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // 填充类别勾选
+  const catContainer = overlay.querySelector('#detailCategories');
+  let dislikes = [...(u.preferences.dislikes || [])];
+  CATEGORIES.forEach(cat => {
+    const label = document.createElement('label');
+    label.className = 'survey-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.checked = dislikes.includes(cat);
+    cb.dataset.cat = cat;
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' ' + cat));
+    catContainer.appendChild(label);
+  });
+
+  // 填充自定义要求
+  let customReqs = [...(u.preferences.customReqs || [])];
+  const reqContainer = overlay.querySelector('#detailCustomReqs');
+  function renderDetailReqs() {
+    reqContainer.innerHTML = '';
+    customReqs.forEach((req, i) => {
+      const tag = document.createElement('span');
+      tag.className = 'req-tag';
+      tag.innerHTML = `${req} <button class="req-del" data-idx="${i}">&times;</button>`;
+      tag.querySelector('.req-del').addEventListener('click', () => {
+        customReqs.splice(i, 1);
+        renderDetailReqs();
+      });
+      reqContainer.appendChild(tag);
+    });
+  }
+  renderDetailReqs();
+
+  overlay.querySelector('#detailCustomAddBtn').addEventListener('click', () => {
+    const val = overlay.querySelector('#detailCustomInput').value.trim();
+    if (!val) return;
+    if (customReqs.length >= 10) { alert('最多 10 条'); return; }
+    customReqs.push(val);
+    overlay.querySelector('#detailCustomInput').value = '';
+    renderDetailReqs();
+  });
+
+  // AI 权限切换
+  const aiCb = overlay.querySelector('#detailAiAccess');
+  aiCb.addEventListener('change', async () => {
+    const r = await apiToggleAiAccess(username);
+    if (r.ok) {
+      overlay.querySelector('#detailAiLabel').textContent = r.aiAccess ? '✅ 已开通' : '❌ 未开通';
+    }
+  });
+
+  // 保存
+  overlay.querySelector('#detailSaveBtn').addEventListener('click', async () => {
+    const checks = overlay.querySelectorAll('#detailCategories input:checked');
+    const newDislikes = Array.from(checks).map(c => c.dataset.cat);
+    const r = await apiAdminUpdatePreference(username, {
+      dislikes: newDislikes,
+      customReqs: customReqs,
+    });
+    if (r.ok) {
+      alert('✅ 已保存');
+      overlay.remove();
+      openAdmin(); // 刷新管理后台
+    } else {
+      alert('保存失败：' + r.error);
+    }
+  });
+
+  overlay.querySelector('#detailCloseBtn').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
 // ======== 自动登录检查 ========
