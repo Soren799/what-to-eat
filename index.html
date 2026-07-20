@@ -8,137 +8,44 @@
 </head>
 <body>
   <div class="container">
-    <!-- ======== 顶部导航 ======== -->
-    <header class="topbar">
-      <h1 class="logo">🍽️ 今天吃什么？</h1>
-      <div class="user-area" id="userArea">
-        <button class="btn-ghost" id="loginBtn">登录</button>
-        <button class="btn-primary-sm" id="registerBtn">注册</button>
-      </div>
-      <div class="user-area logged-in hidden" id="userLoggedIn">
-        <span class="user-greeting" id="userGreeting">👋 你好</span>
-        <button class="btn-ghost" id="surveyBtn">📋 偏好</button>
-        <button class="btn-ghost admin-only hidden" id="adminBtn">⚙️ 管理</button>
-        <button class="btn-ghost" id="logoutBtn">退出</button>
-      </div>
+    <header>
+      <h1>🍽️ 今天吃什么？</h1>
+      <p class="subtitle">根据心情和状态，推荐最适合你的那一餐</p>
     </header>
-
-    <!-- ======== 主内容 ======== -->
     <main>
-
-      <!-- 选择器 -->
-      <section class="selectors">
+      <div class="selectors">
         <div class="selector-card">
-          <label>😊 心情</label>
-          <div class="options" id="moodOptions"></div>
+          <label>😊 你现在的心情</label>
+          <div class="options" id="mood-options"></div>
         </div>
         <div class="selector-card">
-          <label>⏰ 状态</label>
-          <div class="options" id="stateOptions"></div>
+          <label>⏰ 你现在的状态</label>
+          <div class="options" id="state-options"></div>
         </div>
         <div class="selector-card">
-          <label>🍳 餐别</label>
-          <div class="options" id="mealOptions"></div>
+          <label>🍳 哪一餐？</label>
+          <div class="options" id="meal-options"></div>
         </div>
-      </section>
-
-      <!-- 用户自定义要求 -->
-      <section class="custom-request">
-        <label for="customInput">✏️ 有什么要求？（选填）</label>
-        <div class="request-row">
-          <input type="text" id="customInput" placeholder="例如：嗓子疼不能吃辣的、正在减肥、想吃甜的..." maxlength="100">
-          <button class="btn-secondary" id="applyRequestBtn">应用</button>
-        </div>
-        <div class="active-requests" id="activeRequests"></div>
-      </section>
-
-      <!-- 推荐按钮 -->
-      <button class="btn-primary" id="recommendBtn" disabled>
-        <span id="btnText">👆 请选择心情、状态和餐别</span>
+      </div>
+      <button id="recommend-btn" disabled>
+        <span id="btn-text">👆 请选择心情、状态和餐别</span>
       </button>
-
-      <!-- 结果 -->
-      <section class="result-area hidden" id="resultArea">
+      <div id="result" class="hidden">
         <div class="result-card">
-          <div class="result-emoji" id="resultEmoji">🍽️</div>
-          <h2 id="resultTitle">推荐菜品</h2>
-          <p id="resultDesc"></p>
-          <div class="result-tags" id="resultTags"></div>
-          <div class="result-badges" id="resultBadges"></div>
+          <div class="result-emoji" id="result-emoji">🍽️</div>
+          <h2 id="result-title">推荐菜品</h2>
+          <p id="result-desc"></p>
+          <div class="result-tags" id="result-tags"></div>
         </div>
-        <div class="result-actions">
-          <button class="btn-secondary" id="reshuffleBtn">🔄 换一个</button>
-          <button class="btn-ai hidden" id="aiBtn">🤖 AI 智能推荐</button>
-        </div>
-      </section>
+        <button id="reshuffle-btn" class="secondary-btn">🔄 换一个推荐</button>
+      </div>
+      <div class="random-section">
+        <p class="random-hint">🤔 选择困难？</p>
+        <button id="random-btn" class="ghost-btn">🎲 完全随机推荐</button>
+      </div>
     </main>
-
-    <!-- ======== 页脚 ======== -->
-    <footer><p>✨ 吃好每一餐</p></footer>
+    <footer><p>✨ 吃好每一餐，生活不简单</p></footer>
   </div>
-
-  <!-- ======== 登录/注册弹窗 ======== -->
-  <div class="modal-overlay hidden" id="authModal">
-    <div class="modal">
-      <button class="modal-close">&times;</button>
-      <h2 id="authTitle">登录</h2>
-      <div class="auth-tabs">
-        <button class="auth-tab active" data-tab="login">登录</button>
-        <button class="auth-tab" data-tab="register">注册</button>
-      </div>
-      <form id="authForm">
-        <div class="field">
-          <label>用户名</label>
-          <input type="text" id="authUsername" maxlength="20" required autocomplete="username">
-        </div>
-        <div class="field">
-          <label>密码</label>
-          <input type="password" id="authPassword" maxlength="30" required autocomplete="current-password">
-        </div>
-        <p class="form-error hidden" id="authError"></p>
-        <button type="submit" class="btn-primary" id="authSubmit">登录</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ======== 问卷弹窗 ======== -->
-  <div class="modal-overlay hidden" id="surveyModal">
-    <div class="modal modal-lg">
-      <button class="modal-close">&times;</button>
-      <h2>📋 偏好设置</h2>
-      <p class="modal-sub">勾选你不吃的类别，以后推荐时会自动过滤</p>
-
-      <div class="survey-categories" id="surveyCategories"></div>
-
-      <h3 style="margin-top:20px">✏️ 自定义要求</h3>
-      <p class="modal-sub">输入你的特殊要求，每次推荐时会考虑</p>
-      <div class="survey-custom-list" id="surveyCustomList"></div>
-      <div class="survey-custom-add">
-        <input type="text" id="surveyCustomInput" placeholder="例如：在减肥、胃不好、想吃辣的..." maxlength="50">
-        <button class="btn-secondary" id="surveyCustomAddBtn">添加</button>
-      </div>
-
-      <button class="btn-primary" id="surveySaveBtn" style="margin-top:20px">✅ 保存偏好</button>
-    </div>
-  </div>
-
-  <!-- ======== 管理后台弹窗 ======== -->
-  <div class="modal-overlay hidden" id="adminModal">
-    <div class="modal modal-lg">
-      <button class="modal-close">&times;</button>
-      <h2>⚙️ 管理后台</h2>
-      <p class="modal-sub">用户列表 & AI 权限管理</p>
-      <div class="admin-table-wrap">
-        <table class="admin-table">
-          <thead><tr><th>用户名</th><th>注册时间</th><th>AI 权限</th></tr></thead>
-          <tbody id="adminUserList"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <script src="data.js"></script>
-  <script src="api.js"></script>
-  <script src="app.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
