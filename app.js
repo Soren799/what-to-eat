@@ -405,12 +405,11 @@ async function openAdmin() {
 
   adminUserList.innerHTML = '';
   for (const [username, info] of Object.entries(res.registry)) {
-    const userData = DB.getUser(username);
     const tr = document.createElement('tr');
     tr.style.cursor = 'pointer';
     tr.innerHTML = `
       <td>${username}</td>
-      <td>${userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : '-'}</td>
+      <td>-</td>
       <td>
         <label class="toggle" onclick="event.stopPropagation()">
           <input type="checkbox" ${info.aiAccess ? 'checked' : ''} data-user="${username}">
