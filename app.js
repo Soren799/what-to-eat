@@ -164,6 +164,12 @@ function showResult(dish) {
   });
 
   resultBadges.innerHTML = '';
+  if (dish.calories) {
+    const c = document.createElement('span');
+    c.className = 'badge badge-cal';
+    c.textContent = `🔥 ${dish.calories}`;
+    resultBadges.appendChild(c);
+  }
   if (dish.category) {
     const b = document.createElement('span');
     b.className = 'badge';
