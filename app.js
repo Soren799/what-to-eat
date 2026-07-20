@@ -281,7 +281,7 @@ authForm.addEventListener('submit', async (e) => {
   }
 
   authModal.classList.add('hidden');
-  currentUser = { ...res.user, isAdmin: username === ADMIN_USER };
+  currentUser = { ...res.user };
   updateUserUI();
 
   // 首次登录弹出问卷
