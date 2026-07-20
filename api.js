@@ -97,9 +97,21 @@ async function apiToggleAiAccess(username) {
 }
 
 // ======== Recommend API ========
+// 映射新增的心情/状态到基础数据
+function resolveMood(val) {
+  const m = MOODS.find(x => x.value === val);
+  return m?.mapTo ?? val;
+}
+function resolveState(val) {
+  const s = STATES.find(x => x.value === val);
+  return s?.mapTo ?? val;
+}
+
 async function apiRecommend(mood, state, meal, username) {
   await delay(100);
-  const dish = RECIPES[mood]?.[state]?.[meal];
+  const rm = resolveMood(mood);
+  const rs = resolveState(state);
+  const dish = RECIPES[rm]?.[rs]?.[meal];
   if (!dish) return { ok: false, error: '没有推荐' };
 
   let userPrefs = null;
