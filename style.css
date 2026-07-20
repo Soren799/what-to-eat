@@ -131,6 +131,7 @@ body {
 .badge { padding:3px 10px; border-radius:100px; font-size:.75rem; background:#f0f0f0; color:#666; }
 .badge-flavor { background:#fff3e0; color:#e65100; }
 .badge-heat { background:#e8f5e9; color:#2e7d32; }
+.badge-cal { background:#fce4ec; color:#c62828; font-weight:600; }
 .result-actions { display:flex; gap:8px; justify-content:center; margin-top:10px; }
 
 /* ======== 页脚 ======== */
