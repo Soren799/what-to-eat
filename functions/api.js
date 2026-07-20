@@ -88,7 +88,7 @@ function errorResponse(msg, status) {
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
-  const path = url.pathname.replace(/^\/api\//, '');
+  const action = url.searchParams.get('action');
   const method = request.method;
 
   let token;
@@ -96,7 +96,7 @@ export async function onRequest(context) {
 
   try {
     // ======== 注册 ========
-    if (path === 'register' && method === 'POST') {
+    if (action === 'register' && method === 'POST') {
       const { username, password } = await request.json();
       if (!username || !password) return errorResponse('请填写用户名和密码');
 
@@ -127,7 +127,7 @@ export async function onRequest(context) {
     }
 
     // ======== 登录 ========
-    if (path === 'login' && method === 'POST') {
+    if (action === 'login' && method === 'POST') {
       const { username, password } = await request.json();
       if (!username || !password) return errorResponse('请填写用户名和密码');
 
@@ -147,7 +147,7 @@ export async function onRequest(context) {
     }
 
     // ======== 读偏好 ========
-    if (path === 'preference' && method === 'GET') {
+    if (action === 'preference' && method === 'GET') {
       const username = url.searchParams.get('username');
       if (!username) return errorResponse('缺少 username');
 
@@ -160,7 +160,7 @@ export async function onRequest(context) {
     }
 
     // ======== 保存偏好 ========
-    if (path === 'preference' && method === 'PUT') {
+    if (action === 'preference' && method === 'PUT') {
       const body = await request.json();
       const { username, preferences } = body;
       if (!username) return errorResponse('缺少 username');
@@ -177,13 +177,13 @@ export async function onRequest(context) {
     }
 
     // ======== 管理员：获取注册表 ========
-    if (path === 'admin/registry' && method === 'GET') {
+    if (action === 'admin/registry' && method === 'GET') {
       const registry = await ghGistGet(REGISTRY_GIST, token);
       return jsonResponse({ ok: true, registry: registry.content });
     }
 
     // ======== 管理员：开关 AI 权限 ========
-    if (path === 'admin/toggle-ai' && method === 'POST') {
+    if (action === 'admin/toggle-ai' && method === 'POST') {
       const { username } = await request.json();
       if (!username) return errorResponse('缺少 username');
 
@@ -203,7 +203,7 @@ export async function onRequest(context) {
     }
 
     // ======== 管理员：获取用户详情 ========
-    if (path === 'admin/user-detail' && method === 'GET') {
+    if (action === 'admin/user-detail' && method === 'GET') {
       const username = url.searchParams.get('username');
       if (!username) return errorResponse('缺少 username');
 
@@ -225,7 +225,7 @@ export async function onRequest(context) {
     }
 
     // ======== 管理员：更新用户偏好 ========
-    if (path === 'admin/update-preference' && method === 'PUT') {
+    if (action === 'admin/update-preference' && method === 'PUT') {
       const body = await request.json();
       const { username, preferences } = body;
       if (!username) return errorResponse('缺少 username');
@@ -241,7 +241,7 @@ export async function onRequest(context) {
       return jsonResponse({ ok: true });
     }
 
-    return errorResponse('Not found: ' + path + ' ' + method, 404);
+    return errorResponse('Not found: ' + action + ' ' + method, 404);
   } catch (e) {
     return errorResponse('Server error: ' + e.message, 500);
   }
