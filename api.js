@@ -96,6 +96,30 @@ async function apiToggleAiAccess(username) {
   return { ok: true, aiAccess: user.aiAccess };
 }
 
+async function apiGetUserDetail(username) {
+  await delay();
+  const user = DB.getUser(username);
+  if (!user) return { ok: false, error: '用户不存在' };
+  return {
+    ok: true,
+    user: {
+      username: user.username,
+      aiAccess: user.aiAccess,
+      createdAt: user.createdAt,
+      preferences: user.preferences || { dislikes: [], customReqs: [] },
+    },
+  };
+}
+
+async function apiAdminUpdatePreference(username, preferences) {
+  await delay();
+  const user = DB.getUser(username);
+  if (!user) return { ok: false, error: '用户不存在' };
+  user.preferences = preferences;
+  DB.saveUser(username, user);
+  return { ok: true };
+}
+
 // ======== Recommend API ========
 // 映射新增的心情/状态到基础数据
 function resolveMood(val) {
